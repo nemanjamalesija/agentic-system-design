@@ -22,7 +22,7 @@ But you can still test agentic systems rigorously. You just need different testi
 Your state management CLI is the one component that's fully deterministic. Test it like any other code:
 
 ```javascript
-// nfs-tools.test.cjs
+// agent-tools.test.js
 test('create-task produces valid TASK.md', () => {
   const result = createTask('test-slug');
   assert(result.created === true);
@@ -93,14 +93,14 @@ A smoke test "passes" when all three levels are satisfied.
 
 ```
 Test Ticket A (modify-form-field):
-"Add a price range filter to the listing-submit form. Users should be able
+"Add a price range filter to the checkout form. Users should be able
 to set a minimum and maximum price. The filter should use the existing
 form-configuration pattern."
-Target page: listing-submit
+Target page: checkout
 
 Test Ticket E (create-new-page):
 "Create a new 'favorites' page that lists a user's saved listings.
-Similar to browse-listings but filtered to saved items."
+Similar to product-list but filtered to saved items."
 Target page: (none — new page)
 ```
 
@@ -109,9 +109,9 @@ Target page: (none — new page)
 Design test scenarios tailored to each agent's risks:
 
 **Explorer (3 golden-path + 2 error-path):**
-- Golden: modify-form-field on listing-submit
+- Golden: modify-form-field on checkout
 - Golden: create-new-page (no target)
-- Golden: add-component on browse-listings
+- Golden: add-component on product-list
 - Error: vague ticket description (ambiguous type)
 - Error: invalid target page name
 
@@ -227,7 +227,7 @@ If the Explorer puts pattern variance in a table vs a list, and both are consuma
 
 ### Don't Test Hypothetical Edge Cases
 
-Test the failure modes that actually occur. If you've never seen a ticket that spans PB + Figura stacks, don't build a test for it. Wait for it to happen in production, then add the test.
+Test the failure modes that actually occur. If you've never seen a ticket that spans frontend + mobile stacks, don't build a test for it. Wait for it to happen in production, then add the test.
 
 ## Testing Cadence
 

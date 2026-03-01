@@ -27,13 +27,13 @@ Autonomous execution is terrifying in production:
 Every significant decision involves the developer:
 
 ```
-System: "Task 1: Add getData action to store.js."
+System: "Task 1: Add getData action to store.ts."
 Developer: ✓ Approved
 
 System: [implements]
 
-System: "✓ Task 1 complete. Modified: store.js. Checkpoint saved."
-System: "Task 2: Add page handler to web-service.js."
+System: "✓ Task 1 complete. Modified: store.ts. Checkpoint saved."
+System: "Task 2: Add service handler to service.ts."
 Developer: "Actually, use domain+action pattern, not page pattern."
 
 System: [adjusts and implements]
@@ -66,11 +66,11 @@ The principle: **automate the mechanical, collaborate on the meaningful.**
 The executor presents its approach for each task, gets approval, implements, then shows a brief summary:
 
 ```
-Approach: "I'll add a getData action to store.js that calls $webServiceApi
-          with page 'listingSubmit'. Files: store.js"
+Approach: "I'll add a getData action to store.ts that calls apiClient
+          with endpoint 'checkout'. Files: store.ts"
 [Developer approves]
 [Implementation]
-Summary: "✓ Task 1 complete. Modified: store.js. Checkpoint saved."
+Summary: "✓ Task 1 complete. Modified: store.ts. Checkpoint saved."
 ```
 
 **Why per-task:**
@@ -82,9 +82,9 @@ Summary: "✓ Task 1 complete. Modified: store.js. Checkpoint saved."
 ### Per-File (Too Granular)
 
 ```
-"I'll modify store.js line 45-52. Approve?"
-"I'll modify store.js line 78-85. Approve?"
-"I'll modify web-service.js line 12-20. Approve?"
+"I'll modify store.ts line 45-52. Approve?"
+"I'll modify store.ts line 78-85. Approve?"
+"I'll modify service.ts line 12-20. Approve?"
 ```
 
 Developers will rubber-stamp after the third approval. That defeats the purpose.
@@ -106,8 +106,8 @@ When the executor presents its approach before implementing, it should be a **co
 ### High-Level Summary (Right)
 
 ```
-"I'll add a getData action to store.js and a page handler to
-web-service.js. Files: store.js, web-service.js."
+"I'll add a getData action to store.ts and a service handler to
+service.ts. Files: store.ts, service.ts."
 ```
 
 1-3 sentences. Developer catches directional errors in 2 seconds. "Wrong store file" — caught. "Wrong handler name" — caught. "Right approach" — approved, move on.
@@ -117,11 +117,11 @@ web-service.js. Files: store.js, web-service.js."
 ```
 "I'll add this function:
   getData() {
-    return this.$webServiceApi({ page: 'listingSubmit' }).getData();
+    return apiClient.get({ endpoint: 'checkout' }).fetchData();
   }
 And this handler:
-  export function getData(api) {
-    return api.get('/listing/data');
+  export async function fetchData(api) {
+    return api.get('/checkout/data');
   }
 Approve?"
 ```
@@ -137,9 +137,9 @@ The developer already approved a detailed plan (PLAN.md) with exact file paths, 
 After each task, a brief summary gives the developer a running log:
 
 ```
-✓ Task 1 complete. Modified: store.js. Checkpoint saved.
-✓ Task 2 complete. Modified: web-service.js. 1 auto-fix: added missing import. Checkpoint saved.
-✓ Task 3 complete. Modified: index.vue, store.js. Checkpoint saved.
+✓ Task 1 complete. Modified: store.ts. Checkpoint saved.
+✓ Task 2 complete. Modified: service.ts. 1 auto-fix: added missing import. Checkpoint saved.
+✓ Task 3 complete. Modified: index.vue, store.ts. Checkpoint saved.
 ```
 
 **Why summaries matter:**
@@ -167,10 +167,10 @@ Generic, unhelpful, doesn't tell the developer what to do.
 ### Good Error Presentation
 
 ```
-[Explorer] BLOCKED: Target page 'listing-detail' not found
+[Explorer] BLOCKED: Target page 'product-detail' not found
 
-Missing: Valid page directory in presentation-backend/src/pages/
-Suggestion: Did you mean 'browse-listings' or 'similar-listings'?
+Missing: Valid page directory in src/modules/
+Suggestion: Did you mean 'product-list' or 'related-products'?
 
 Options:
   (a) Retry with corrected page name
@@ -212,7 +212,7 @@ Don't show developers everything at once. Reveal complexity as they need it.
 
 ### Level 1: The Happy Path
 
-`/nfs-pb-quick "Add price filter"` → system runs → code appears → verification passes.
+`/agent-quick "Add price filter"` → system runs → code appears → verification passes.
 
 The developer sees: a command, progress updates, and results. They don't see: agent handoffs, checkpoint saves, deviation processing.
 
@@ -222,7 +222,7 @@ When the system encounters a variant pattern or the developer rejects an approac
 
 ### Level 3: Debugging
 
-When things fail, developers see the full pipeline: which agent failed, what it produced, what was expected. `/nfs-pb-progress` shows checkpoint state, file modifications, deviations.
+When things fail, developers see the full pipeline: which agent failed, what it produced, what was expected. `/agent-progress` shows checkpoint state, file modifications, deviations.
 
 ### Level 4: Customization
 
@@ -234,12 +234,12 @@ Design for Level 1 first. Everything else is discovered, not taught.
 
 ### The Learnings File
 
-`.nfs/learnings.md` — a committed, team-shared file where developers record corrections:
+`.agent/learnings.md` — a committed, team-shared file where developers record corrections:
 
 ```markdown
 - [2026-03-05]: Explorer classified "add sorting" as modify-form-field, should be modify-filter
-- [2026-03-08]: Planner generated separate web-service file for listing-submit, should reuse existing handlers
-- [2026-03-12]: user-account page now uses store factory pattern (integration.md variance table needs update)
+- [2026-03-08]: Planner generated separate service file for checkout, should reuse existing handlers
+- [2026-03-12]: user-profile page now uses store factory pattern (integration.md variance table needs update)
 ```
 
 Agents read this file at the start of planning and execution. Corrections compound — the same mistake doesn't repeat across developers or tickets.
