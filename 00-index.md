@@ -4,7 +4,7 @@ A comprehensive guide to designing, building, and shipping multi-agent systems t
 
 ## Who This Is For
 
-Engineers building agentic systems on top of LLM platforms (Claude Code, Cursor, Copilot agents, or custom runtimes). The principles are platform-agnostic; the examples are grounded in Claude Code's primitives.
+Engineers building agentic systems on top of LLM platforms. The principles are platform-agnostic; the examples are grounded in practical primitives.
 
 ## Chapters
 
