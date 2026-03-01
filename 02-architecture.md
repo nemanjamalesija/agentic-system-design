@@ -20,11 +20,11 @@ A production agentic system has five distinct layers. Each layer has a single re
 
 ### Layer 1: Skills
 
-Skills are the surface area of your system. They're what developers invoke — `/nfs-pb-quick`, `/nfs-pb-plan`, `/nfs-pb-verify`. A skill parses arguments, selects a workflow (or orchestrates inline for simple flows), and returns results to the developer.
+Skills are the surface area of your system. They're what developers invoke — `/agent-quick`, `/agent-plan`, `/agent-verify`. A skill parses arguments, selects a workflow (or orchestrates inline for simple flows), and returns results to the developer.
 
 **Design rules:**
 - Every skill must be explicitly invoked. No auto-triggering. Developers should never wonder "why did this just run?"
-- Skill names form a namespace. Use prefixes to group related skills (`/nfs-pb-*`, `/nfs-vue-*`).
+- Skill names form a namespace. Use prefixes to group related skills (`/agent-frontend-*`, `/agent-backend-*`).
 - Simple skills (1-2 agent calls) can orchestrate inline. Complex skills (3+ agents, handoff validation) delegate to a workflow file.
 - Skills own the developer interaction — they present results, collect approvals, offer recovery options.
 
@@ -113,12 +113,12 @@ Start with a pipeline. Graduate to a graph only when the pipeline's limitations 
 
 ## File System as Infrastructure
 
-In platform-native agentic systems (built on Claude Code, Cursor, etc.), the file system IS your infrastructure:
+In platform-native agentic systems (built on LLM platforms), the file system IS your infrastructure:
 
 - **Agents** are markdown files (`.claude/agents/*.md`)
 - **Skills** are markdown files (`.claude/skills/*/SKILL.md`)
-- **Conventions** are markdown files (`.nfs/conventions/*.md`)
-- **Artifacts** are markdown files (`.nfs-state/<slug>/*.md`)
+- **Conventions** are markdown files (`.agent/conventions/*.md`)
+- **Artifacts** are markdown files (`.agent-state/<slug>/*.md`)
 - **State** is JSON embedded in markdown (checkpoint sections)
 - **Configuration** is JSON files
 
@@ -138,21 +138,21 @@ Your directory structure should mirror your architectural layers:
 .claude/
   skills/          # Layer 1: Entry points
   agents/          # Layer 3: Workers
-.nfs/
+.agent/
   workflows/       # Layer 2: Orchestration
   conventions/     # Layer 4: Knowledge
-    pb/            # Stack-scoped
-    vue/           # Stack-scoped
+    frontend/      # Stack-scoped
+    backend/       # Stack-scoped
   templates/       # Artifact scaffolds
   bin/             # CLI tooling
-.nfs-state/        # Layer 5: State (gitignored)
+.agent-state/      # Layer 5: State (gitignored)
   <slug>/          # Per-task state
 ```
 
 **Principles:**
 - Committed to git: skills, agents, workflows, conventions, templates, CLI tools
 - Gitignored: per-task runtime state (artifacts, checkpoints)
-- Namespaced: agents use `nfs-` prefix, skills use `nfs-pb-*` namespace, conventions use stack directories
+- Namespaced: agents use a system prefix, skills use `sys-frontend-*` namespace, conventions use stack directories
 
 **The onboarding test:** Can a new developer understand the system by looking at the directory structure? Each directory should answer "what lives here?" without opening any files.
 
