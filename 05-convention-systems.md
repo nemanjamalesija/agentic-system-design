@@ -4,7 +4,7 @@
 
 Without conventions, agents improvise. They generate code that looks reasonable in isolation but doesn't match the codebase's existing patterns. They make architectural decisions that conflict with team standards. They solve problems in ways that create new problems.
 
-Conventions solve this by codifying domain knowledge into artifacts that agents consume. They're the difference between "write a Pinia store" (generic, inconsistent) and "write a Pinia store following the Options API pattern with `$webServiceApi` using the page key matching the web-service handler name" (specific, consistent).
+Conventions solve this by codifying domain knowledge into artifacts that agents consume. They're the difference between "write a data store" (generic, inconsistent) and "write a data store following the team's preferred pattern with `apiClient` using the route key matching the service endpoint name" (specific, consistent).
 
 ## The Ownership Boundary
 
@@ -15,7 +15,7 @@ The single most important convention system decision: **which knowledge lives wh
 In a real codebase, domain knowledge exists in multiple places:
 - Architecture docs (`.ai/frontend/architecture.md`)
 - Code style guides (`.ai/frontend/code-style.md`)
-- Framework docs (`.ai/frontend/presentation-backend.md`)
+- Framework docs (`.ai/docs/architecture.md`)
 - Tribal knowledge (patterns that developers know but haven't written down)
 
 An agentic system needs all of this knowledge. The naive approach is to copy it into convention files. This creates **knowledge drift** — when the source is updated, the copy becomes stale. Two developers get different answers depending on which file the agent reads.
@@ -26,13 +26,13 @@ Establish a clear ownership boundary:
 
 ```
 .ai/frontend/          ← Source of truth for:
-  architecture.md        - PB page structure, decision trees
+  architecture.md        - Application structure, decision trees
   code-style.md          - Naming, imports, linting
-  styling.md             - SUIT CSS, SCSS patterns
-  ccapi.md               - API conventions
+  styling.md             - BEM, SCSS patterns
+  api.md                 - API conventions
 
-.nfs/conventions/pb/   ← Source of truth for:
-  integration.md         - How PB layers wire together (page→store→web-service→CCAPI)
+.agent/conventions/frontend/   ← Source of truth for:
+  integration.md         - How application layers wire together (page→store→service→API)
   deviation-rules.md     - When agents should auto-fix vs ask
   verification-rules.md  - Machine-actionable compliance checklist
 ```
@@ -46,14 +46,14 @@ Every piece of knowledge in a convention file should be attributed to its source
 ```markdown
 ### Store Patterns
 
-Stores must use Options API syntax.
+Stores must use the functional pattern.
 
-> Source: .ai/frontend/code-style.md — "All Vue code uses Options API"
+> Source: .ai/docs/code-style.md — "All frontend code uses functional patterns"
 
-The `$webServiceApi` call in the store must use a `page` key that matches
-the web-service handler's exported key.
+The `apiClient` call in the store must use a `route` key that matches
+the service endpoint's exported key.
 
-> Source: Derived from cross-page analysis of all PB pages
+> Source: Derived from cross-module analysis of all application modules
 ```
 
 **Why attribution matters:**
@@ -76,18 +76,18 @@ Convention files are consumed by AI agents, not (primarily) by humans. They shou
 
 **Bad (prose-heavy):**
 ```markdown
-When writing stores, you should generally use the Options API pattern
-rather than the Composition API. This is important because our codebase
-has standardized on Options API for consistency reasons.
+When writing stores, you should generally use the functional pattern
+rather than the class-based pattern. This is important because our codebase
+has standardized on functional patterns for consistency reasons.
 ```
 
 **Good (rule-based):**
 ```markdown
-### STO-01: Options API Only [blocking]
-**What to check:** Store files use `defineStore('name', { ... })` with options object
-**Pass:** No `setup()` function, no `ref()`, no `computed()` from vue
-**Fail:** Any Composition API syntax in store files
-**Source:** .ai/frontend/code-style.md
+### STO-01: Functional Pattern Only [blocking]
+**What to check:** Store files use `createStore('name', { ... })` with options object
+**Pass:** No class decorators, no inheritance chains, no mutable singletons
+**Fail:** Any class-based patterns in store files
+**Source:** .ai/docs/code-style.md
 ```
 
 The second format gives the agent:
@@ -127,10 +127,10 @@ In any non-trivial codebase, patterns vary across components. Some patterns are 
 ```markdown
 ### Store Factory Function
 **Pattern:** Store created via factory function returning defineStore
-**Universality:** VARIANT — home, listing-submit only (2/11)
+**Universality:** VARIANT — dashboard, checkout only (2/11)
 **Action:** ASK developer which approach to follow
-**Pages using variant:** home/store.js, listing-submit/store.js
-**Pages using standard:** browse-listings, search, + 7 others
+**Pages using variant:** dashboard/store.ts, checkout/store.ts
+**Pages using standard:** product-list, search, + 7 others
 ```
 
 **The golden rule:** If a pattern isn't followed by 100% of the codebase, agents must ask the developer which approach to follow. Never assume.
@@ -139,11 +139,11 @@ In any non-trivial codebase, patterns vary across components. Some patterns are 
 
 Some convention knowledge is expensive to derive but cheap to consume. Instead of having agents re-derive it every invocation, derive it once and store the result.
 
-**Example:** Integration wiring patterns across 11 PB pages.
+**Example:** Integration wiring patterns across 11 application modules.
 
-**Without pre-computed index:** The Explorer scans all 11 pages every time, identifies universal vs variant patterns, builds a comparison table. Uses 60% of its context window. Takes 30+ seconds.
+**Without pre-computed index:** The Explorer scans all 11 modules every time, identifies universal vs variant patterns, builds a comparison table. Uses 60% of its context window. Takes 30+ seconds.
 
-**With pre-computed index:** The `integration.md` convention file contains a pattern variance table derived from scanning all pages. The Explorer reads the table (~500 tokens), deep-scans only the target page, and references the table for cross-page context. Uses 15% of context. Takes 5 seconds.
+**With pre-computed index:** The `integration.md` convention file contains a pattern variance table derived from scanning all modules. The Explorer reads the table (~500 tokens), deep-scans only the target module, and references the table for cross-module context. Uses 15% of context. Takes 5 seconds.
 
 **When to pre-compute:**
 - The knowledge is derived from codebase analysis (not external sources)
@@ -160,7 +160,7 @@ Some convention knowledge is expensive to derive but cheap to consume. Instead o
 
 Pre-computed indexes can go stale. Address this through:
 
-1. **Learnings file:** A team-shared file (`.nfs/learnings.md`) where developers record corrections. Agents read this at the start of planning and execution. "The integration.md table says store factory is only home + listing-submit, but user-account also uses it now."
+1. **Learnings file:** A team-shared file (`.agent/learnings.md`) where developers record corrections. Agents read this at the start of planning and execution. "The integration.md table says store factory is only dashboard + checkout, but user-profile also uses it now."
 
 2. **Periodic re-derivation:** As part of major updates, re-scan the codebase and update the convention file. Not every sprint — only when significant changes accumulate.
 
@@ -171,16 +171,16 @@ Pre-computed indexes can go stale. Address this through:
 When your system supports multiple tech stacks, conventions should be scoped by stack:
 
 ```
-.nfs/conventions/
-  pb/                    ← Presentation Backend conventions
+.agent/conventions/
+  frontend/              ← Frontend conventions
     integration.md
     deviation-rules.md
     verification-rules.md
-  vue/                   ← Vue (client-side) conventions (future)
+  backend/               ← Backend conventions (future)
     integration.md
     deviation-rules.md
     verification-rules.md
-  figura/                ← Figura (vanilla JS) conventions (future)
+  mobile/                ← Mobile conventions (future)
     integration.md
     deviation-rules.md
     verification-rules.md
@@ -194,7 +194,7 @@ When your system supports multiple tech stacks, conventions should be scoped by 
 
 ### The Knowledge Dump
 
-A convention file that tries to document everything about a topic. 2000 lines of PB architecture, code patterns, style rules, and historical decisions. No agent will reliably extract the relevant subset.
+A convention file that tries to document everything about a topic. 2000 lines of frontend architecture, code patterns, style rules, and historical decisions. No agent will reliably extract the relevant subset.
 
 **Fix:** Split by concern. Integration wiring is one file. Deviation rules is another. Verification checklist is a third. Each file has a focused scope.
 

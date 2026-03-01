@@ -17,8 +17,8 @@ Where are we in the workflow? Which tasks are done? Which is next?
   "taskIndex": 3,
   "tasks": [
     { "name": "Add store action", "status": "complete" },
-    { "name": "Add web-service handler", "status": "complete" },
-    { "name": "Wire into fetchData", "status": "complete" },
+    { "name": "Add API handler", "status": "complete" },
+    { "name": "Wire into data fetching", "status": "complete" },
     { "name": "Add component", "status": "pending" },
     { "name": "Update index.vue", "status": "pending" }
   ]
@@ -30,7 +30,7 @@ Where are we in the workflow? Which tasks are done? Which is next?
 What files has the system produced? What did each agent generate?
 
 ```
-.nfs-state/<slug>/
+.agent-state/<slug>/
   TASK.md          ← Progress tracking + checkpoint
   EXPLORATION.md   ← Explorer output
   PLAN.md          ← Planner output
@@ -44,12 +44,12 @@ What files in the codebase were modified? What was their state before modificati
 ```json
 {
   "filesModified": [
-    "presentation-backend/src/pages/listing-submit/store.js",
-    "presentation-backend/src/pages/listing-submit/web-service.js"
+    "src/modules/checkout/store.ts",
+    "src/modules/checkout/service.ts"
   ],
   "fileHashes": {
-    "store.js": "a1b2c3d4",
-    "web-service.js": "e5f6g7h8"
+    "store.ts": "a1b2c3d4",
+    "service.ts": "e5f6g7h8"
   }
 }
 ```
@@ -84,9 +84,9 @@ Every checkpoint should capture:
 ```json
 {
   "taskIndex": 2,
-  "tasks": ["Add store action [complete]", "Add handler [complete]", "Wire fetchData [pending]"],
-  "filesModified": ["store.js", "web-service.js"],
-  "fileHashes": { "store.js": "a1b2c3d4", "web-service.js": "e5f6g7h8" },
+  "tasks": ["Add store action [complete]", "Add handler [complete]", "Wire data fetching [pending]"],
+  "filesModified": ["store.ts", "service.ts"],
+  "fileHashes": { "store.ts": "a1b2c3d4", "service.ts": "e5f6g7h8" },
   "deviations": [{ "type": "auto-fix", "description": "Added missing import" }],
   "errors": [],
   "summary": "2 of 5 tasks complete. Store action and handler added.",
@@ -147,7 +147,7 @@ No git dependency. No commit requirement. Works in any state of the working tree
 
 ### Developer Handoff
 
-For v1, "handoff to a colleague" is aspirational. The state directory is gitignored (per-ticket runtime state shouldn't be committed). Developer B pulling the branch won't have Developer A's `.nfs-state/<slug>/` directory.
+For v1, "handoff to a colleague" is aspirational. The state directory is gitignored (per-ticket runtime state shouldn't be committed). Developer B pulling the branch won't have Developer A's `.agent-state/<slug>/` directory.
 
 **Pragmatic v1 approach:** Scope state persistence to "same developer can pause and resume." The primary use case is overnight interruptions, not team handoff.
 
@@ -161,13 +161,13 @@ Agents should interact with state through CLI commands, not by parsing markdown 
 
 ```bash
 # Create task state
-node .nfs/bin/nfs-tools.cjs create-task "add-price-filter"
+node .agent/bin/agent-tools.js create-task "add-price-filter"
 
 # Load checkpoint
-node .nfs/bin/nfs-tools.cjs load-state "add-price-filter"
+node .agent/bin/agent-tools.js load-state "add-price-filter"
 
 # Save checkpoint
-node .nfs/bin/nfs-tools.cjs save-state "add-price-filter" --data '{"taskIndex": 2, ...}'
+node .agent/bin/agent-tools.js save-state "add-price-filter" --data '{"taskIndex": 2, ...}'
 ```
 
 **Why CLI:**
@@ -184,7 +184,7 @@ node .nfs/bin/nfs-tools.cjs save-state "add-price-filter" --data '{"taskIndex": 
 
 3. **Idempotent operations.** `save-state` replaces the checkpoint, not appends. `create-task` with a collision appends a numeric suffix (`-2`, `-3`), not fails.
 
-4. **Deterministic paths.** State lives in `.nfs-state/<slug>/`. The slug is derived from the task description. No randomness, no timestamps in paths.
+4. **Deterministic paths.** State lives in `.agent-state/<slug>/`. The slug is derived from the task description. No randomness, no timestamps in paths.
 
 ## State Anti-Patterns
 
@@ -214,7 +214,7 @@ Resuming from a checkpoint without verifying that the codebase matches the check
 
 ### The Orphaned State
 
-State directories that accumulate indefinitely. After 50 tickets, `.nfs-state/` contains 50 directories, most long-completed. No cleanup mechanism.
+State directories that accumulate indefinitely. After 50 tickets, `.agent-state/` contains 50 directories, most long-completed. No cleanup mechanism.
 
 **Fix:** For v1, accept the accumulation (disk is cheap). For v1.1, add a `cleanup` command that archives or deletes state directories older than N days, with confirmation.
 
