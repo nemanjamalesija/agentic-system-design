@@ -46,11 +46,11 @@ If you're exceeding 5k per step, you're reading content that belongs in an agent
 Agents pass data through artifacts on disk, not through the orchestrator:
 
 ```
-Explorer writes .nfs-state/<slug>/EXPLORATION.md
+Explorer writes .agent-state/<slug>/EXPLORATION.md
   → Orchestrator checks: file exists, has ## Classification section
   → Planner reads EXPLORATION.md in its own fresh context
 
-Planner writes .nfs-state/<slug>/PLAN.md
+Planner writes .agent-state/<slug>/PLAN.md
   → Orchestrator checks: file exists, has ## Tasks section
   → Executor reads PLAN.md in its own fresh context
 ```
@@ -116,7 +116,7 @@ This pattern is powerful because it's **consistent.** Whether the Explorer can't
 
 **Manual:** The developer provides the expected artifact themselves. This is the escape hatch for when the agent fundamentally can't do the work (e.g., the ticket requires domain knowledge the agent doesn't have). The workflow skips the agent and uses the developer's artifact for the next step.
 
-**Abort:** Save the checkpoint. The developer can resume later with `/nfs-pb-execute` or hand off to a colleague. All completed steps are preserved. This is the safe option — and the most important one. Developers are far more willing to try agentic workflows when they know "abort" doesn't lose their work.
+**Abort:** Save the checkpoint. The developer can resume later with `/agent-execute` or hand off to a colleague. All completed steps are preserved. This is the safe option — and the most important one. Developers are far more willing to try agentic workflows when they know "abort" doesn't lose their work.
 
 ### Error Context Propagation
 
@@ -125,10 +125,10 @@ When retrying, include the error context in the agent's re-invocation:
 ```
 ## Previous Attempt
 The previous Explorer run produced a BLOCKED result:
-- Reason: Target page 'listing-detail' not found
-- Suggestion: Did you mean 'browse-listings'?
+- Reason: Target page 'product-detail' not found
+- Suggestion: Did you mean 'product-list'?
 
-The developer has confirmed the target page is 'browse-listings'.
+The developer has confirmed the target page is 'product-list'.
 Please re-run with this corrected information.
 ```
 

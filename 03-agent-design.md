@@ -42,8 +42,8 @@ Explorer prompt (inline):
   - ## BLOCKED error format                      ← error handling
 
 Explorer prompt (referenced):
-  - .ai/frontend/presentation-backend.md         ← supplementary
-  - .nfs/conventions/pb/integration.md            ← supplementary
+  - .ai/docs/architecture.md                      ← supplementary
+  - .agent/conventions/frontend/integration.md    ← supplementary
 ```
 
 ## Consistent Agent Structure
@@ -134,7 +134,7 @@ No translation step. No information loss. The Planner knows the Executor will re
 - Code examples from the target codebase must be included so the Executor matches existing patterns
 - Variant decisions must be resolved before the plan is written
 
-**Anti-pattern:** A plan that says "follow SUIT CSS conventions" without showing what that looks like in the target page's code. The Executor will interpret "SUIT CSS" in the abstract rather than matching the specific naming pattern the page uses.
+**Anti-pattern:** A plan that says "follow BEM naming conventions" without showing what that looks like in the target page's code. The Executor will interpret "BEM" in the abstract rather than matching the specific naming pattern the page uses.
 
 ## Show, Don't Tell
 
@@ -153,18 +153,18 @@ and the convention rules that apply."
 
 ## Tasks
 
-### Task 1: Add getData action to store
-**File:** listing-submit/store.js
+### Task 1: Add fetchData action to store
+**File:** checkout/store.ts
 **Section:** actions
-**Conventions:** Options API only (code-style.md), $webServiceApi page value must match handler name
+**Conventions:** functional pattern only (code-style.md), API client route must match service endpoint name
 **Example from target page:**
-```js
-// listing-submit/store.js:45-52
-getData() {
-  return this.$webServiceApi({ page: 'listingSubmit' }).getData();
+```ts
+// checkout/store.ts:45-52
+async fetchData() {
+  return apiClient.get({ endpoint: 'checkout' }).fetchData();
 }
 ```
-**Acceptance:** New action follows existing pattern, handler name matches."
+**Acceptance:** New action follows existing pattern, endpoint name matches."
 ```
 
 The model pattern-matches against the example. The output is structurally consistent. Two examples (one modify-plan, one create-plan) is enough — the model generalizes from concrete examples better than from abstract rules.
@@ -183,9 +183,9 @@ The agent fixes the issue without mentioning it. Reserved for mechanical correct
 
 **Tier 2: Notify-and-fix (transparent)**
 The agent fixes the issue AND tells the developer what it did. For convention violations where the fix is clear but the developer should know.
-- Composition API → Options API rewrite
+- class component → functional component rewrite
 - `@import` → `@use` in SCSS
-- SUIT CSS naming violations
+- BEM naming violations
 
 **Tier 3: Ask (collaborative)**
 The agent stops and asks the developer. For decisions that affect architecture or could go multiple ways.
@@ -211,11 +211,11 @@ When you encounter something unexpected:
 - ESLint violation → auto-fix
 
 **Fix and notify developer:**
-- Composition API code → rewrite to Options API, notify: "Rewrote to Options API per code-style.md"
+- class component code → rewrite to functional component, notify: "Rewrote to functional component per code-style.md"
 - @import in SCSS → change to @use, notify: "Changed @import to @use per styling.md"
 
 **Stop and ask developer:**
-- Need a new shared component → ask: "This needs a new shared component in #pb/components/. Approve?"
+- Need a new shared component → ask: "This needs a new shared component in shared/components/. Approve?"
 - Store shape change → ask: "This changes the store's public interface. Proceed?"
 - Unsure which pattern to follow → ask: "Page A does X, Page B does Y. Which approach?"
 
@@ -228,7 +228,7 @@ The examples ARE the decision tree. They resolve the ambiguous boundaries betwee
 
 Each agent should have a clear, testable scope:
 
-**Too broad:** "Help developers implement PB features"
+**Too broad:** "Help developers implement frontend features"
 **Too narrow:** "Add a fetchData call to store.js"
 **Just right:** "Classify ticket type, scan target page, identify universal vs variant patterns, produce structured EXPLORATION.md"
 
@@ -245,9 +245,9 @@ Agents must fail gracefully. When an agent can't complete its work, it should pr
 
 ```markdown
 ## BLOCKED
-**Reason:** Target page 'listing-detail' not found in presentation-backend/src/pages/
+**Reason:** Target page 'product-detail' not found in src/modules/
 **Missing:** Valid page directory
-**Suggestion:** Did you mean 'browse-listings' or 'similar-listings'?
+**Suggestion:** Did you mean 'product-list' or 'related-products'?
 ```
 
 **Why structured errors matter:**
