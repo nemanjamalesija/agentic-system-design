@@ -30,7 +30,7 @@ You built the system. Now use it on real work — not synthetic test tickets, no
 ### Dogfooding Protocol
 
 1. **Pick 3-5 real tickets** of varying complexity (simple modify, complex modify, edge case)
-2. **Run each ticket through the full pipeline** (`/nfs-pb-quick`)
+2. **Run each ticket through the full pipeline** (`/agent-quick`)
 3. **Record every friction point** — where you paused, where you had to work around the system, where the output was wrong
 4. **Fix each issue** — prompt adjustment, convention update, workflow change
 5. **Re-run a previous ticket** after fixes to verify they don't regress
@@ -53,7 +53,7 @@ Choose 2-3 developers who are:
 - **Willing to give honest feedback** (not just "it's great")
 - **Patient with rough edges** (early adopters see bugs)
 - **Representative of the team** (different skill levels, different working styles)
-- **Working on real PB tickets** (not waiting for a special project)
+- **Working on real tickets** (not waiting for a special project)
 
 ### The First Session
 
@@ -94,9 +94,9 @@ Before rolling out to the full team, create documentation that answers:
 - Partial fit: already know what to build (skip Explorer), want convention check only (use Verifier standalone)
 
 **"How do I use it?"** — The 3 commands they need:
-- `/nfs-pb-quick <ticket>` — full pipeline
-- `/nfs-pb-verify` — check conventions on existing work
-- `/nfs-pb-progress` — see where things stand
+- `/agent-quick <ticket>` — full pipeline
+- `/agent-verify` — check conventions on existing work
+- `/agent-progress` — see where things stand
 
 **"What do I do when it fails?"** — The three recovery options, explained simply.
 
@@ -106,10 +106,10 @@ Before rolling out to the full team, create documentation that answers:
 
 Don't oversell. The announcement should set appropriate expectations:
 
-> "NFS is now available for PB work. It helps with explore→plan→execute→verify
-> for standalone PB tickets. It works best for form fields, components, and new
-> pages. It's not meant for bug fixes or cross-stack work. Try it on your next
-> PB ticket with `/nfs-pb-quick`. Known limitations: [list]. Feedback: add to
+> "The agent system is now available for frontend work. It helps with explore→plan→execute→verify
+> for standalone tickets. It works best for form fields, components, and new
+> modules. It's not meant for bug fixes or cross-stack work. Try it on your next
+> ticket with `/agent-quick`. Known limitations: [list]. Feedback: add to
 > learnings.md or tell [author]."
 
 ### Monitoring After Rollout
@@ -141,8 +141,8 @@ Keep it simple. Each entry is one line:
 # Learnings
 
 - [2026-03-05]: Explorer classified "add sorting" as modify-form-field, should be modify-filter — sorting changes the filter service, not the form configuration
-- [2026-03-08]: Planner generated separate web-service file for listing-submit, should reuse existing handlers array — listing-submit composes handlers
-- [2026-03-12]: user-account page now uses store factory pattern — integration.md variance table needs update (was: home + listing-submit only)
+- [2026-03-08]: Planner generated separate web-service file for checkout, should reuse existing handlers array — checkout composes handlers
+- [2026-03-12]: user-profile page now uses store factory pattern — integration.md variance table needs update (was: dashboard + checkout only)
 - [2026-03-15]: Verifier flagged @import in a vendor SCSS file — should only check project SCSS, not vendor imports
 ```
 
@@ -167,7 +167,7 @@ When the same learning appears 3+ times, it should be promoted:
 | First-use count | Curiosity / awareness | 100% of team tries it |
 | Second-use count | Actual value delivered | 70%+ use it again |
 | Weekly active users | Sustained adoption | 50%+ of team uses it weekly |
-| Tickets completed with NFS | Volume of value | Increasing trend |
+| Tickets completed with the system | Volume of value | Increasing trend |
 
 ### Quality Metrics
 
@@ -180,7 +180,7 @@ When the same learning appears 3+ times, it should be promoted:
 
 ### Anti-Metrics (Don't Measure)
 
-- **Time saved per ticket:** Too variable, too subjective. A developer might spend 20 minutes with NFS but would have spent 15 without it — for now. The value is consistency and convention compliance, not speed.
+- **Time saved per ticket:** Too variable, too subjective. A developer might spend 20 minutes with the system but would have spent 15 without it — for now. The value is consistency and convention compliance, not speed.
 - **Lines of code generated:** Irrelevant. 50 lines of correct, convention-compliant code beats 200 lines of wrong code.
 - **Developer satisfaction score:** Too gameable. Watch what developers do (second-use rate), not what they say.
 
@@ -194,11 +194,11 @@ The author can't reproduce a bug because their mental model compensates for the 
 
 ### "Nobody Uses It"
 
-The system is available but developers stick to raw Claude Code or manual development.
+The system is available but developers stick to raw AI assistants or manual development.
 
 **Diagnosis:** Either the onboarding experience is too complex, the first-ticket success rate is too low, or the system solves a problem developers don't feel they have.
 
-**Fix:** Pair with a non-adopter on their next PB ticket. Watch what they do without the system. Identify the specific moment where the system would have helped — and make sure the system actually handles that moment well.
+**Fix:** Pair with a non-adopter on their next ticket. Watch what they do without the system. Identify the specific moment where the system would have helped — and make sure the system actually handles that moment well.
 
 ### "Everyone Uses It Wrong"
 
@@ -206,7 +206,7 @@ Developers invoke the wrong skills, provide wrong inputs, or ignore the system's
 
 **Diagnosis:** The mental model gap between how you designed the system and how developers think about their work.
 
-**Fix:** Not more documentation — simpler entry points. If developers keep using `/nfs-pb-execute` without running the Explorer first, maybe the Execute skill should detect missing exploration and offer to run it.
+**Fix:** Not more documentation — simpler entry points. If developers keep using `/agent-execute` without running the Explorer first, maybe the Execute skill should detect missing exploration and offer to run it.
 
 ### "It Keeps Making the Same Mistake"
 
@@ -222,7 +222,7 @@ An agentic system's value compounds over time:
 - **Week 1:** "Interesting tool, let me try it"
 - **Month 1:** "It gets our conventions right most of the time"
 - **Month 3:** "New developers use it to learn our patterns"
-- **Month 6:** "We can't imagine doing PB work without it"
+- **Month 6:** "We can't imagine doing frontend work without it"
 
 The transition from "tool" to "infrastructure" happens when the system knows more about the codebase's conventions than any individual developer. That's the goal. It takes patience, iteration, and honest feedback loops to get there.
 
